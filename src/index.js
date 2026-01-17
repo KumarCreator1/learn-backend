@@ -1,7 +1,7 @@
 // require('dotenv').config({path: './env'})
 import dotenv from "dotenv";
 
-dotenv.config({path:'./env'})
+dotenv.config({ path: "./env" });
 
 import express from "express";
 const app = express();
@@ -28,4 +28,18 @@ const app = express();
 */
 
 import connectDB from "./db/index.js";
-connectDB();
+connectDB()
+  .then(() => {
+    const server = app.listen(process.env.PORT || 8000, () => {
+      console.log(`server is running at port : ${process.env.PORT}`);
+    });
+    app.on("error", (error) => {
+      console.log(`an error occured during server starting...`, error);
+    });
+    app.on("close", () => {
+      console.log("server is stopped !");
+    });
+  })
+  .catch((err) => {
+    console.log("MONGODB connection failed !!", err);
+  });
