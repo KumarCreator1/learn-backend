@@ -1,13 +1,38 @@
-.DS_Store
-node_modules
-/build
-/.svelte-kit
-/package
-.env
-.env.*
-!.env.example
+# Node modules
+node_modules/
 
-# Ignore files for PNPM, NPM and YARN
-pnpm-lock.yaml
+# Build directories
+dist/
+build/
+out/
+.next/
+.vercel/
+
+# Test coverage
+coverage/
+
+# Logs
+logs/
+*.log
+
+# Bundled/minified files
+*.min.js
+*.bundle.js
+
+# Lock files
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
+
+# Public/static files
+public/
+
+# Miscellaneous
+.DS_Store
+.env
+.env.local
+.env.*.local
+
+# Optional: ignore all test files
+*.test.js
+*.spec.js
