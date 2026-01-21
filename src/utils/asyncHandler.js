@@ -1,11 +1,11 @@
 // utils/asyncHandler.js
 const asyncHandler = (fn) => {
   return (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve(fn(req, res, next)).catch((err) => next(err));
   };
 };
 
-module.exports = asyncHandler;
+export { asyncHandler };
 
 // const asyncHandler = (requestHandler) => async (req,res,next) =>{
 //     try {
@@ -17,5 +17,3 @@ module.exports = asyncHandler;
 //         })
 //     }
 // }
-
-export { asyncHandler };

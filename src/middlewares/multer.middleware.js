@@ -5,11 +5,10 @@ const storage = multer.diskStorage({
     cb(null, "./public/temp");
   },
   filename: function (req, file, cb) {
-     cb(null, file.fieldname + "-" + uniqueSuffix);
+    cb(null, file.fieldname + "-" + uniqueSuffix);
   },
 });
 
-const upload = multer({ 
-    storage,
+const upload = multer({
+  storage,
 });
-
