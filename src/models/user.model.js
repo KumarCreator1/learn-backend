@@ -49,12 +49,11 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-userSchema.pre("save", async function() {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return ;
+    return;
   }
-  this.password = await bcrypt.hash(this.password, 10)
-  
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
@@ -67,6 +66,7 @@ userSchema.methods.generateAcessToken = function () {
       _id: this._id,
       email: this.email,
       fullname: this.fullname,
+      username: this.username,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {

@@ -34,4 +34,7 @@ import userRouter from "./routes/user.routes.js";
 //routes declaration
 app.use("/api/v1/users", userRouter);
 
+//secure route
+// app.use()
+
 export { app };
