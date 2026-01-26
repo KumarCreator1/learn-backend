@@ -9,7 +9,7 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
     sucessflag: 200,
-  }),
+  })
 );
 
 app.use(cookieParser());
@@ -19,7 +19,7 @@ app.use(cookieParser());
 app.use(
   express.json({
     limit: "16kb",
-  }),
+  })
 );
 
 //2. data is coming from url so url encoding

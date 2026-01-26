@@ -39,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (
     ![fullName, email, username, password].every(
-      (field) => typeof field === "string" && field.trim().length > 0,
+      (field) => typeof field === "string" && field.trim().length > 0
     )
   ) {
     throw new ApiError(400, "All fields are required");
@@ -98,9 +98,7 @@ const registerUser = asyncHandler(async (req, res) => {
   delete createdUser.password;
   delete createdUser.refreshToken;
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, createdUser, "user registered successfully"));
+  return res.status(201).json(new ApiResponse(201, createdUser, "user registered successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -139,9 +137,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "wrong password");
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    retrievedUser._id,
-  );
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(retrievedUser._id);
 
   const loggedInUser = retrievedUser.toObject();
   delete loggedInUser.password;
@@ -160,8 +156,8 @@ const loginUser = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { user: loggedInUser, accessToken, refreshToken },
-        "user logged in successfully",
-      ),
+        "user logged in successfully"
+      )
     );
 });
 
@@ -175,7 +171,7 @@ const logOutUser = asyncHandler(async (req, res) => {
     },
     {
       new: true,
-    },
+    }
   );
 
   const option = {
@@ -199,17 +195,12 @@ const renewAccessToken = asyncHandler(async (req, res) => {
 
   let decodedPayload;
   try {
-    decodedPayload = jwt.verify(
-      incomingToken,
-      process.env.REFRESH_TOKEN_SECRET,
-    );
+    decodedPayload = jwt.verify(incomingToken, process.env.REFRESH_TOKEN_SECRET);
   } catch (error) {
     throw new ApiError(401, "invalid or expired refresh token");
   }
 
-  const retrievedUser = await User.findById(decodedPayload?._id).select(
-    "-password",
-  );
+  const retrievedUser = await User.findById(decodedPayload?._id).select("-password");
 
   if (!retrievedUser) {
     throw new ApiError(401, "user not found");
@@ -224,8 +215,9 @@ const renewAccessToken = asyncHandler(async (req, res) => {
     secure: true,
   };
 
-  const { accessToken, refreshToken: newRefreshToken } =
-    await generateAccessAndRefreshToken(retrievedUser._id);
+  const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshToken(
+    retrievedUser._id
+  );
 
   return res
     .status(200)
@@ -235,8 +227,8 @@ const renewAccessToken = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { accessToken, refreshToken: newRefreshToken },
-        "access token renewed successfully",
-      ),
+        "access token renewed successfully"
+      )
     );
 });
 
@@ -257,15 +249,7 @@ const updatePassword = asyncHandler(async (req, res) => {
   retrievedUser.password = newPassword;
   await retrievedUser.save({ validateBeforeSave: false });
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, {}, "password updated successfully"));
+  return res.status(200).json(new ApiResponse(200, {}, "password updated successfully"));
 });
 
-export {
-  loginUser,
-  registerUser,
-  logOutUser,
-  renewAccessToken,
-  updatePassword,
-};
+export { loginUser, registerUser, logOutUser, renewAccessToken, updatePassword };
