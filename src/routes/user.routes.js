@@ -25,7 +25,10 @@ router.route("/register").post(
 
 router.route("/login").post(loginUser);
 
+
 //secured route
 router.route("/logout").post(verifyJWT, logOutUser);
 router.route("/renew-access-token").post(verifyJWT, renewAccessToken);
+router.route("/update-avatar").post(verifyJWT, upload.single("avatar"), updateAvatar);
+router.route("/update-password").post(verifyJWT, updatePassword);
 export default router;
