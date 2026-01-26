@@ -27,5 +27,5 @@ router.route("/login").post(loginUser);
 
 //secured route
 router.route("/logout").post(verifyJWT, logOutUser);
-router.route("/renew-access-token").post(renewAccessToken);
+router.route("/renew-access-token").post(verifyJWT, renewAccessToken);
 export default router;

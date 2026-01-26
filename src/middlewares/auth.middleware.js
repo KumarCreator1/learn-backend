@@ -19,7 +19,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
       "-password -refreshToken",
     );
 
-    if (retrievedUser) {
+    if (!retrievedUser) {
       throw new ApiError(401, "user not found");
     }
 
