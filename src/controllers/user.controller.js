@@ -67,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   if (!avatar?.url) {
-    throw new ApiError(410, "avatar upload failed:cloudinary");
+    throw new ApiError(500, "avatar upload failed:cloudinary");
   }
 
   let coverImageUrl = "";
@@ -117,10 +117,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { username, email, password } = req.body;
   if (!(username || email)) {
-    throw new ApiError(401, "username or email is required");
+    throw new ApiError(400, "username or email is required");
   }
   if (!password) {
-    throw new ApiError(401, "password is required");
+    throw new ApiError(400, "password is required");
   }
 
   const retrievedUser = await User.findOne({
@@ -190,7 +190,7 @@ const renewAccessToken = asyncHandler(async (req, res) => {
   const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!incomingToken) {
-    throw new ApiError(401, "unauthrized request:no token");
+    throw new ApiError(401, "unauthorized request:no token");
   }
 
   let decodedPayload;
@@ -234,7 +234,7 @@ const renewAccessToken = asyncHandler(async (req, res) => {
 
 const updatePassword = asyncHandler(async (req, res) => {
   const { password, newPassword } = req.body;
-  if (!newPassword && !password) {
+  if (!newPassword || !password) {
     throw new ApiError(400, "old password and new password are required");
   }
 
@@ -252,4 +252,40 @@ const updatePassword = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, {}, "password updated successfully"));
 });
 
-export { loginUser, registerUser, logOutUser, renewAccessToken, updatePassword };
+const updateAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalFilePath = req.file?.path;
+
+  if (!avatarLocalFilePath) {
+    throw new ApiError(400, "avatar file not found:multer,please provide files");
+  }
+
+  let avatarFileUrl;
+  try {
+    const uploadedAvatar = await uploadOnCloudinary(avatarLocalFilePath);
+    avatarFileUrl = uploadedAvatar?.url;
+  } catch (error) {
+    throw new ApiError(500, "An error occured while uploading to cloudinary:updateAvatar");
+  }
+
+  if (!avatarFileUrl) {
+    throw new ApiError(500, "couldn't get url for avatar:cloudinary");
+  }
+
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        avatar: avatarFileUrl,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { avatar: avatarFileUrl }, "avatar uploaded successfully"));
+});
+
+export { loginUser, registerUser, logOutUser, renewAccessToken, updatePassword, updateAvatar };
