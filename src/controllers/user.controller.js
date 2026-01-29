@@ -295,6 +295,120 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, "current user fetched successfully"));
 });
 
+const updateProfile = asyncHandler(async (req, res) => {
+  // Get current user
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const { fullName, username, email, password } = req.body;
+  const avatarFile = req.files?.avatar?.[0];
+  const coverImageFile = req.files?.coverImage?.[0];
+
+  // Validate new email if provided
+  if (email && email !== user.email) {
+    const emailExists = await User.findOne({ email: email.toLowerCase() });
+    if (emailExists) {
+      throw new ApiError(409, "Email already in use");
+    }
+  }
+
+  // Validate new username if provided
+  if (username && username !== user.username) {
+    const usernameExists = await User.findOne({
+      username: username.toLowerCase(),
+    });
+    if (usernameExists) {
+      throw new ApiError(409, "Username already taken");
+    }
+  }
+
+  // Build update object with only provided fields
+  const updateData = {};
+
+  if (fullName && fullName.trim()) {
+    updateData.fullName = fullName.trim();
+  }
+
+  if (username && username.trim()) {
+    updateData.username = username.toLowerCase().trim();
+  }
+
+  // Handle password change with old password verification
+  if (password) {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      throw new ApiError(400, "Both old and new password are required to change password");
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    if (!isPasswordCorrect) {
+      throw new ApiError(401, "Old password is incorrect");
+    }
+
+    updateData.password = newPassword;
+  }
+
+  // Handle email change - update will be pending verification
+  if (email && email !== user.email) {
+    // In a real scenario, you'd send a verification email
+    // For now, directly update (in production add email verification)
+    updateData.email = email.toLowerCase().trim();
+    updateData.isEmailVerified = false; // Mark as unverified until they confirm
+    // In real app: send verification email and set emailVerificationToken
+  }
+
+  // Handle avatar upload
+  if (avatarFile) {
+    try {
+      const uploadedAvatar = await uploadOnCloudinary(avatarFile.path);
+      if (!uploadedAvatar?.url) {
+        throw new ApiError(500, "Avatar upload failed");
+      }
+      updateData.avatar = uploadedAvatar.url;
+    } catch (error) {
+      throw new ApiError(500, "Error uploading avatar to cloudinary");
+    }
+  }
+
+  // Handle cover image upload
+  if (coverImageFile) {
+    try {
+      const uploadedCoverImage = await uploadOnCloudinary(coverImageFile.path);
+      if (!uploadedCoverImage?.url) {
+        throw new ApiError(500, "Cover image upload failed");
+      }
+      updateData.coverImage = uploadedCoverImage.url;
+    } catch (error) {
+      throw new ApiError(500, "Error uploading cover image to cloudinary");
+    }
+  }
+
+  // If nothing to update
+  if (Object.keys(updateData).length === 0) {
+    throw new ApiError(400, "No fields provided to update");
+  }
+
+  // Update user document
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: updateData },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        updatedUser,
+        "Profile updated successfully. Please verify your email if it was changed."
+      )
+    );
+});
+
 export {
   loginUser,
   registerUser,
@@ -303,4 +417,5 @@ export {
   updatePassword,
   updateAvatar,
   getCurrentUser,
+  updateProfile,
 };

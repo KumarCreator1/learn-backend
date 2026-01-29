@@ -4,6 +4,8 @@ import {
   logOutUser,
   registerUser,
   renewAccessToken,
+  updateProfile,
+  getCurrentUser,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -28,8 +30,22 @@ router.route("/login").post(loginUser);
 //secured route
 router.route("/logout").post(verifyJWT, logOutUser);
 router.route("/renew-access-token").post(verifyJWT, renewAccessToken);
-router.route("/update-avatar").post(verifyJWT, upload.single("avatar"), updateAvatar);
-router.route("/update-password").post(verifyJWT, updatePassword);
+
+// Unified profile update route - handles all profile fields
+router.route("/update-profile").patch(
+  verifyJWT,
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  updateProfile
+);
 
 router.route("/me").get(verifyJWT, getCurrentUser);
 
