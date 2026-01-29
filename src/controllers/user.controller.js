@@ -292,7 +292,15 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   const user = req.user_id;
   user.select("-password -refreshToken");
 
-  return res.status(200).json(new ApiResponse(200, user, "current user fetched successfully"));;
+  return res.status(200).json(new ApiResponse(200, user, "current user fetched successfully"));
 });
 
-export { loginUser, registerUser, logOutUser, renewAccessToken, updatePassword, updateAvatar, getCurrentUser };
+export {
+  loginUser,
+  registerUser,
+  logOutUser,
+  renewAccessToken,
+  updatePassword,
+  updateAvatar,
+  getCurrentUser,
+};
