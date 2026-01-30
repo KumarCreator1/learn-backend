@@ -215,6 +215,7 @@ const renewAccessToken = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
+    path: "/",
   };
 
   const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshToken(
