@@ -30,6 +30,7 @@ router.route("/login").post(loginUser);
 //secured route
 router.route("/logout").post(verifyJWT, logOutUser);
 router.route("/renew-access-token").post(verifyJWT, renewAccessToken);
+router.route("/me").get(verifyJWT, getCurrentUser);
 
 // Unified profile update route - handles all profile fields
 router.route("/update-profile").patch(
@@ -46,7 +47,5 @@ router.route("/update-profile").patch(
   ]),
   updateProfile
 );
-
-router.route("/me").get(verifyJWT, getCurrentUser);
 
 export default router;

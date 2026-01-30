@@ -23,7 +23,7 @@ app.use(
 );
 
 //2. data is coming from url so url encoding
-app.use(urlencoded({ inflate: "16kb", extended: true }));
+app.use(urlencoded({ limit: "16kb", extended: true }));
 
 // 3. Do not disturb server for Static files and images
 app.use(express.static("public")); //fetch it from public dir

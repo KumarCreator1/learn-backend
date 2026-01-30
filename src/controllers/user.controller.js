@@ -116,6 +116,7 @@ const loginUser = asyncHandler(async (req, res) => {
   // send it to user cookies
 
   const { username, email, password } = req.body;
+
   if (!(username || email)) {
     throw new ApiError(400, "username or email is required");
   }
@@ -177,6 +178,7 @@ const logOutUser = asyncHandler(async (req, res) => {
   const option = {
     httpOnly: true,
     secure: true,
+    path: "/",
   };
 
   return res
@@ -289,8 +291,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  const user = req.user_id;
-  user.select("-password -refreshToken");
+  const user = req.user;
 
   return res.status(200).json(new ApiResponse(200, user, "current user fetched successfully"));
 });
